@@ -1,0 +1,67 @@
+{
+  "labor_hours": {
+    "change_points": [],
+    "overall_trend": {
+      "slope": -10.178820198582422,
+      "intercept": 2459.4398921914517,
+      "r_squared": 0.9918091280701941,
+      "period_start": "1948",
+      "period_end": "2023"
+    },
+    "periods": {
+      "1950s_1970s": {
+        "slope": -7.949924574437025,
+        "intercept": 2411.771185615931,
+        "r_squared": 0.9452841554473543,
+        "period_start": "1950",
+        "period_end": "1979"
+      },
+      "1980s_1990s": {
+        "slope": -11.499940615205107,
+        "intercept": 2155.0112427649974,
+        "r_squared": 0.9999999824142908,
+        "period_start": "1980",
+        "period_end": "1999"
+      },
+      "2000s_present": {
+        "slope": -10.49996237529183,
+        "intercept": 1925.0103475647009,
+        "r_squared": 0.9999999877913832,
+        "period_start": "2000",
+        "period_end": "2023"
+      }
+    }
+  },
+  "gdp_growth_rate": {
+    "overall_trend": {
+      "slope": -0.1600184115001336,
+      "intercept": 9.722201699780454,
+      "r_squared": 0.6889435905382659,
+      "period_start": "1955",
+      "period_end": "2023"
+    },
+    "periods": {
+      "1950s_1970s": {
+        "slope": -0.19765973783767748,
+        "intercept": 10.54598179359639,
+        "r_squared": 0.2181168729310241,
+        "period_start": "1955",
+        "period_end": "1979"
+      },
+      "1980s_1990s": {
+        "slope": -0.2648277492405443,
+        "intercept": 5.867385514858312,
+        "r_squared": 0.4364816607032864,
+        "period_start": "1980",
+        "period_end": "1999"
+      },
+      "2000s_present": {
+        "slope": -0.022238420785233182,
+        "intercept": 1.2578480044177092,
+        "r_squared": 0.024367440877920865,
+        "period_start": "2000",
+        "period_end": "2023"
+      }
+    }
+  }
+}
