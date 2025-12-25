@@ -2,7 +2,27 @@
  * API通信ユーティリティ
  */
 
-const API_BASE_URL = 'http://localhost:5001/api';
+// 環境に応じてAPIベースURLを決定
+function getApiBaseUrl() {
+    // 環境変数が設定されている場合はそれを使用（本番環境用）
+    if (window.API_BASE_URL) {
+        return window.API_BASE_URL;
+    }
+    
+    // 現在のホストに基づいて判断
+    const hostname = window.location.hostname;
+    
+    // ローカル開発環境
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5001/api';
+    }
+    
+    // 本番環境: 同じドメインの/apiを使用
+    // バックエンドが別のURLにある場合は、HTMLでwindow.API_BASE_URLを設定してください
+    return '/api';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 class API {
     /**

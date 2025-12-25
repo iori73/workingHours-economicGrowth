@@ -80,7 +80,10 @@ async function loadInitialData() {
         }
     } catch (error) {
         console.error('Error loading initial data:', error);
-        showError('データの読み込みに失敗しました。バックエンドサーバーが起動しているか確認してください。');
+        const apiUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5001/api' 
+            : '/api');
+        showError(`データの読み込みに失敗しました。バックエンドサーバーが起動しているか確認してください。\n接続先: ${apiUrl}\nエラー: ${error.message}`);
     }
 }
 
@@ -274,14 +277,39 @@ async function loadDataSources() {
  */
 function showError(message) {
     const container = document.querySelector('.container');
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.style.cssText = 'background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin: 20px 0;';
-    errorDiv.textContent = message;
-    container.insertBefore(errorDiv, container.firstChild);
     
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 5000);
+    // 既存のエラーメッセージを削除
+    const existingError = container.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message alert alert-error shadow-lg';
+    errorDiv.style.cssText = 'margin: 20px 0; white-space: pre-line;';
+    
+    // 改行を適切に処理
+    const messageLines = message.split('\n');
+    let html = '<div class="flex items-start gap-3">';
+    html += '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+    html += '<div>';
+    messageLines.forEach(line => {
+        if (line.trim()) {
+            html += `<div>${line}</div>`;
+        }
+    });
+    html += '</div></div>';
+    
+    errorDiv.innerHTML = html;
+    
+    // headerの後に挿入
+    const header = container.querySelector('header');
+    if (header) {
+        header.after(errorDiv);
+    } else {
+        container.insertBefore(errorDiv, container.firstChild);
+    }
+    
+    // エラーメッセージは自動削除しない（ユーザーが確認できるように）
 }
 
