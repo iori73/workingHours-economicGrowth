@@ -15,23 +15,23 @@
 </head>
 <body class="bg-base-200 min-h-screen">
     <div class="container w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 bg-base-100 shadow-xl min-h-screen">
-        <header class="text-center mb-8 pb-6 border-b-2 border-base-300">
-            <h1 class="text-4xl lg:text-5xl font-bold text-primary mb-3">日本の労働時間と経済成長の可視化</h1>
+        <header class="text-center border-b-2 border-base-300">
+            <h1 class="text-4xl lg:text-5xl font-bold">日本の労働時間と経済成長の可視化</h1>
             <p class="text-base-content/70 text-lg">「なぜ働いていると本が読めなくなるのか」から考える労働時間と経済成長の関係</p>
-            <div class="alert alert-success mt-6 shadow-md">
+            <div class="alert alert-success shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <div><strong>データについて:</strong> 現在、厚生労働省・内閣府・総務省統計局の公式統計に基づいた実データを使用しています。データソース: 厚生労働省「毎月勤労統計調査」、内閣府「国民経済計算」、総務省「社会生活基本調査」。</div>
+                <div><strong>実データを使用:</strong> 厚生労働省・内閣府・総務省の公式統計を元に作成しています。</div>
             </div>
         </header>
 
-        <nav class="flex flex-wrap gap-2 mb-6 p-2 bg-base-200 rounded-box">
+        <nav class="flex flex-wrap gap-2 bg-base-200 rounded-box">
             <button class="tab-button btn btn-sm sm:btn-md active" data-tab="timeseries">時系列グラフ</button>
             <button class="tab-button btn btn-sm sm:btn-md" data-tab="correlation">相関分析</button>
             <button class="tab-button btn btn-sm sm:btn-md" data-tab="comparison">国際比較</button>
             <button class="tab-button btn btn-sm sm:btn-md" data-tab="reading">読書時間との関係</button>
         </nav>
 
-        <div class="bg-base-200 rounded-box p-4 md:p-6 mb-8">
+        <div class="filter-panel bg-base-200 rounded-box">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                 <div class="form-control w-full">
                     <label class="label" for="indicator-select">
@@ -64,51 +64,51 @@
         <main>
             <!-- 時系列グラフタブ -->
             <div id="timeseries-tab" class="tab-content active">
-                <div class="chart-container mb-10">
-                    <h2 class="text-3xl font-bold text-primary mb-6">労働時間と経済指標の推移</h2>
+                <div class="chart-container">
+                    <h2 class="text-3xl font-bold">労働時間と経済指標の推移</h2>
                     <div id="timeseries-chart" class="bg-base-100 rounded-lg"></div>
                 </div>
             </div>
 
             <!-- 相関分析タブ -->
             <div id="correlation-tab" class="tab-content">
-                <div class="chart-container mb-10">
-                    <h2 class="text-3xl font-bold text-primary mb-6">相関分析</h2>
+                <div class="chart-container">
+                    <h2 class="text-3xl font-bold">相関分析</h2>
                     <div id="correlation-chart" class="bg-base-100 rounded-lg"></div>
-                    <div id="correlation-stats" class="card bg-base-200 shadow-md p-6 mt-6"></div>
+                    <div id="correlation-stats" class="correlation-stats"></div>
                 </div>
             </div>
 
             <!-- 国際比較タブ -->
             <div id="comparison-tab" class="tab-content">
-                <div class="chart-container mb-10">
-                    <h2 class="text-3xl font-bold text-primary mb-6">国際比較</h2>
+                <div class="chart-container">
+                    <h2 class="text-3xl font-bold">国際比較</h2>
                     <div id="comparison-chart" class="bg-base-100 rounded-lg"></div>
                 </div>
             </div>
 
             <!-- 読書時間タブ -->
             <div id="reading-tab" class="tab-content">
-                <div class="chart-container mb-10">
-                    <h2 class="text-3xl font-bold text-primary mb-6">読書時間との関係</h2>
+                <div class="chart-container">
+                    <h2 class="text-3xl font-bold">読書時間との関係</h2>
                     <div id="reading-chart" class="bg-base-100 rounded-lg"></div>
                 </div>
             </div>
         </main>
 
         <!-- 解説セクション -->
-        <section class="card bg-base-200 shadow-md p-8 mt-12">
-            <h2 class="text-3xl font-bold text-primary mb-6">経済指標の解説</h2>
+        <section class="card bg-base-200 shadow-md">
+            <h2 class="text-3xl font-bold">経済指標の解説</h2>
             <div id="indicator-explanations"></div>
         </section>
 
         <!-- データソース情報 -->
-        <section class="card bg-base-200 shadow-md p-8 mt-8">
-            <h2 class="text-3xl font-bold text-primary mb-6">データソース</h2>
+        <section class="card bg-base-200 shadow-md">
+            <h2 class="text-3xl font-bold">データソース</h2>
             <div id="data-sources-list"></div>
         </section>
 
-        <footer class="mt-12 pt-6 border-t-2 border-base-300 text-center text-base-content/60">
+        <footer class="border-t-2 border-base-300 text-center text-base-content/60">
             <p>この可視化は「なぜ働いていると本が読めなくなるのか」という本をきっかけに作成されました。</p>
         </footer>
     </div>
