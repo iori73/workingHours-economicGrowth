@@ -1,55 +1,43 @@
 /**
  * API通信ユーティリティ
+ * 静的JSONファイルからデータを取得
  */
 
-// 環境に応じてAPIベースURLを決定
-function getApiBaseUrl() {
-    // 環境変数が設定されている場合はそれを使用（本番環境用）
-    if (window.API_BASE_URL) {
-        return window.API_BASE_URL;
-    }
-    
-    // 現在のホストに基づいて判断
-    const hostname = window.location.hostname;
-    
-    // ローカル開発環境
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:5001/api';
-    }
-    
-    // 本番環境: 同じドメインの/apiを使用
-    // バックエンドが別のURLにある場合は、HTMLでwindow.API_BASE_URLを設定してください
-    return '/api';
-}
+// データのベースURL（静的ファイル）
+const DATA_BASE_URL = 'data';
 
-const API_BASE_URL = getApiBaseUrl();
+// キャッシュ用変数
+let cachedData = null;
+let cachedCorrelation = null;
+let cachedTimeseries = null;
+let cachedMetadata = null;
 
 class API {
     /**
      * データを取得
      */
     static async getData(params = {}) {
-        const queryParams = new URLSearchParams();
-        
-        if (params.startYear) queryParams.append('start_year', params.startYear);
-        if (params.endYear) queryParams.append('end_year', params.endYear);
-        if (params.indicators) {
-            if (Array.isArray(params.indicators)) {
-                queryParams.append('indicators', params.indicators.join(','));
-            } else {
-                queryParams.append('indicators', params.indicators);
-            }
-        }
-        
-        const url = `${API_BASE_URL}/data${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-        
         try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // キャッシュがあればそれを使用
+            if (!cachedData) {
+                const response = await fetch(`${DATA_BASE_URL}/combined_dataset.json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                cachedData = await response.json();
             }
-            const data = await response.json();
-            return data.data;
+            
+            let data = [...cachedData];
+            
+            // 年でフィルタリング
+            if (params.startYear) {
+                data = data.filter(d => d.year >= params.startYear);
+            }
+            if (params.endYear) {
+                data = data.filter(d => d.year <= params.endYear);
+            }
+            
+            return data;
         } catch (error) {
             console.error('Error fetching data:', error);
             throw error;
@@ -61,12 +49,19 @@ class API {
      */
     static async getIndicators() {
         try {
-            const response = await fetch(`${API_BASE_URL}/indicators`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // データから指標を取得
+            if (!cachedData) {
+                const response = await fetch(`${DATA_BASE_URL}/combined_dataset.json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                cachedData = await response.json();
             }
-            const data = await response.json();
-            return data.indicators;
+            
+            if (cachedData && cachedData.length > 0) {
+                return Object.keys(cachedData[0]).filter(key => key !== 'year');
+            }
+            return [];
         } catch (error) {
             console.error('Error fetching indicators:', error);
             throw error;
@@ -78,11 +73,23 @@ class API {
      */
     static async getYearRange() {
         try {
-            const response = await fetch(`${API_BASE_URL}/year-range`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // データから年範囲を計算
+            if (!cachedData) {
+                const response = await fetch(`${DATA_BASE_URL}/combined_dataset.json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                cachedData = await response.json();
             }
-            return await response.json();
+            
+            if (cachedData && cachedData.length > 0) {
+                const years = cachedData.map(d => d.year);
+                return {
+                    min: Math.min(...years),
+                    max: Math.max(...years)
+                };
+            }
+            return null;
         } catch (error) {
             console.error('Error fetching year range:', error);
             throw error;
@@ -93,16 +100,19 @@ class API {
      * 相関分析結果を取得
      */
     static async getCorrelation(indicator = null) {
-        const url = indicator 
-            ? `${API_BASE_URL}/correlation?indicator=${indicator}`
-            : `${API_BASE_URL}/correlation`;
-        
         try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (!cachedCorrelation) {
+                const response = await fetch(`${DATA_BASE_URL}/correlation_analysis.json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                cachedCorrelation = await response.json();
             }
-            return await response.json();
+            
+            if (indicator && cachedCorrelation) {
+                return cachedCorrelation[indicator] || null;
+            }
+            return cachedCorrelation;
         } catch (error) {
             console.error('Error fetching correlation:', error);
             throw error;
@@ -114,11 +124,14 @@ class API {
      */
     static async getTimeSeriesAnalysis() {
         try {
-            const response = await fetch(`${API_BASE_URL}/timeseries`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (!cachedTimeseries) {
+                const response = await fetch(`${DATA_BASE_URL}/time_series_analysis.json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                cachedTimeseries = await response.json();
             }
-            return await response.json();
+            return cachedTimeseries;
         } catch (error) {
             console.error('Error fetching time series analysis:', error);
             throw error;
@@ -130,11 +143,29 @@ class API {
      */
     static async getMetadata() {
         try {
-            const response = await fetch(`${API_BASE_URL}/metadata`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (!cachedMetadata) {
+                // 複数のメタデータファイルを読み込み
+                const files = [
+                    'labor_hours_metadata.json',
+                    'economic_indicators_metadata.json',
+                    'reading_time_metadata.json'
+                ];
+                
+                cachedMetadata = {};
+                
+                for (const file of files) {
+                    try {
+                        const response = await fetch(`${DATA_BASE_URL}/${file}`);
+                        if (response.ok) {
+                            const key = file.replace('_metadata.json', '');
+                            cachedMetadata[key] = await response.json();
+                        }
+                    } catch (e) {
+                        console.warn(`Could not load ${file}:`, e);
+                    }
+                }
             }
-            return await response.json();
+            return cachedMetadata;
         } catch (error) {
             console.error('Error fetching metadata:', error);
             throw error;

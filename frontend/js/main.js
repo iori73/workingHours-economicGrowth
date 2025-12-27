@@ -80,10 +80,7 @@ async function loadInitialData() {
         }
     } catch (error) {
         console.error('Error loading initial data:', error);
-        const apiUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:5001/api' 
-            : '/api');
-        showError(`データの読み込みに失敗しました。バックエンドサーバーが起動しているか確認してください。\n接続先: ${apiUrl}\nエラー: ${error.message}`);
+        showError(`データの読み込みに失敗しました。\nエラー: ${error.message}`);
     }
 }
 

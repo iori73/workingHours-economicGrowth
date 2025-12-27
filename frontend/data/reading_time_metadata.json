@@ -1,0 +1,7 @@
+{
+  "description": "Processed reading time data (minutes per day)",
+  "source": "Statistics_Bureau_real_statistics_based",
+  "year_range": "1976-2023",
+  "data_points": 48,
+  "note": "Data collected every 5 years (社会生活基本調査)"
+}
