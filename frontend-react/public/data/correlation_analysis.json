@@ -1,0 +1,26 @@
+{
+  "gdp_growth_rate": {
+    "pearson_correlation": 0.8389914757351251,
+    "pearson_p_value": 2.25825321992729e-19,
+    "spearman_correlation": 0.8330866938933876,
+    "spearman_p_value": 6.822391715083271e-19,
+    "n_samples": 69,
+    "interpretation": "very_strong"
+  },
+  "gdp_per_capita_usd": {
+    "pearson_correlation": -0.9764767737744502,
+    "pearson_p_value": 2.5345504982699052e-36,
+    "spearman_correlation": -0.9999999999999999,
+    "spearman_p_value": 0.0,
+    "n_samples": 54,
+    "interpretation": "very_strong"
+  },
+  "reading_minutes_per_day": {
+    "pearson_correlation": 0.992867981715547,
+    "pearson_p_value": 3.828879111879619e-44,
+    "spearman_correlation": 0.9998914400474466,
+    "spearman_p_value": 6.483294456020414e-86,
+    "n_samples": 48,
+    "interpretation": "very_strong"
+  }
+}

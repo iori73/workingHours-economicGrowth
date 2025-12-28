@@ -1,0 +1,10 @@
+{
+  "description": "Processed economic indicators (GDP growth, GDP per capita, labor productivity)",
+  "indicators": [
+    "year",
+    "gdp_growth_rate",
+    "gdp_per_capita_usd"
+  ],
+  "year_range": "1955-2023",
+  "data_points": 69
+}

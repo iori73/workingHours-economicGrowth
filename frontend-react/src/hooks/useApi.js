@@ -1,35 +1,42 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
-const API_BASE_URL = 'http://localhost:5001/api';
+// 静的データファイルのベースURL
+const DATA_BASE_URL = '/data';
+
+// キャッシュ用（モジュールレベル）
+let cachedData = null;
+let cachedCorrelation = null;
+let cachedMetadata = null;
 
 export function useApi() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchData = useCallback(async (params = {}) => {
-    const queryParams = new URLSearchParams();
-    
-    if (params.startYear) queryParams.append('start_year', params.startYear);
-    if (params.endYear) queryParams.append('end_year', params.endYear);
-    if (params.indicators) {
-      if (Array.isArray(params.indicators)) {
-        queryParams.append('indicators', params.indicators.join(','));
-      } else {
-        queryParams.append('indicators', params.indicators);
-      }
-    }
-    
-    const url = `${API_BASE_URL}/data${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+
+      // キャッシュがなければ取得
+      if (!cachedData) {
+        const response = await fetch(`${DATA_BASE_URL}/combined_dataset.json`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        cachedData = await response.json();
       }
-      const data = await response.json();
-      return data.data;
+
+      let data = [...cachedData];
+
+      // 年でフィルタリング
+      if (params.startYear) {
+        data = data.filter(d => d.year >= params.startYear);
+      }
+      if (params.endYear) {
+        data = data.filter(d => d.year <= params.endYear);
+      }
+
+      return data;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -40,11 +47,23 @@ export function useApi() {
 
   const fetchYearRange = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/year-range`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // キャッシュがなければ取得
+      if (!cachedData) {
+        const response = await fetch(`${DATA_BASE_URL}/combined_dataset.json`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        cachedData = await response.json();
       }
-      return await response.json();
+
+      if (cachedData && cachedData.length > 0) {
+        const years = cachedData.map(d => d.year);
+        return {
+          min: Math.min(...years),
+          max: Math.max(...years)
+        };
+      }
+      return null;
     } catch (err) {
       console.error('Error fetching year range:', err);
       throw err;
@@ -52,16 +71,19 @@ export function useApi() {
   }, []);
 
   const fetchCorrelation = useCallback(async (indicator = null) => {
-    const url = indicator 
-      ? `${API_BASE_URL}/correlation?indicator=${indicator}`
-      : `${API_BASE_URL}/correlation`;
-    
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!cachedCorrelation) {
+        const response = await fetch(`${DATA_BASE_URL}/correlation_analysis.json`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        cachedCorrelation = await response.json();
       }
-      return await response.json();
+
+      if (indicator && cachedCorrelation) {
+        return cachedCorrelation[indicator] || null;
+      }
+      return cachedCorrelation;
     } catch (err) {
       console.error('Error fetching correlation:', err);
       throw err;
@@ -70,11 +92,28 @@ export function useApi() {
 
   const fetchMetadata = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/metadata`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!cachedMetadata) {
+        const files = [
+          'labor_hours_metadata.json',
+          'economic_indicators_metadata.json',
+          'reading_time_metadata.json'
+        ];
+
+        cachedMetadata = {};
+
+        for (const file of files) {
+          try {
+            const response = await fetch(`${DATA_BASE_URL}/${file}`);
+            if (response.ok) {
+              const key = file.replace('_metadata.json', '');
+              cachedMetadata[key] = await response.json();
+            }
+          } catch (e) {
+            console.warn(`Could not load ${file}:`, e);
+          }
+        }
       }
-      return await response.json();
+      return cachedMetadata;
     } catch (err) {
       console.error('Error fetching metadata:', err);
       throw err;
@@ -90,4 +129,3 @@ export function useApi() {
     fetchMetadata,
   };
 }
-

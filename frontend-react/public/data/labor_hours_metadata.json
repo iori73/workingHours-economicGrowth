@@ -1,0 +1,6 @@
+{
+  "description": "Processed labor hours data (annual average hours worked)",
+  "sources": "MHLW",
+  "year_range": "1948-2023",
+  "data_points": 76
+}
